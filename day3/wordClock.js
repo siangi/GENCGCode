@@ -1,6 +1,6 @@
 let HOUR = 'STUNDE';
 let MINUTE = 'MINUTE';
-let SECOND = 'SECOND';
+let SECOND = 'SEKUNDE';
 
 let HOUR_COLOR;
 let MINUTE_COLOR;
@@ -16,14 +16,17 @@ let secondWords = [];
 
 let secondTimestamp;
 
+let nextMinuteCoord;
+let nextHourCoord;
+
 function setup(){
     HOUR = 'STUNDE';
     MINUTE = 'MINUTE';
     SECOND = 'SECOND';
 
-    HOUR_COLOR = color('black');
-    MINUTE_COLOR = color('darkgrey');
-    SECOND_COLOR = color('lightgrey');
+    HOUR_COLOR = color('#d62828');
+    MINUTE_COLOR = color('#f77f00');
+    SECOND_COLOR = color('#fcbf49');
 
     HOUR_SIZE = 80;
     MINUTE_SIZE = 50;
@@ -31,15 +34,17 @@ function setup(){
 
     hourWords = [];
     minuteWords = [];
-     secondWords = [];
+    secondWords = [];
     createCanvas(windowWidth, windowHeight);
+    nextHourCoord = [random(0, windowWidth), random(0,windowHeight)];
+    nextMinuteCoord = [random(0, windowWidth), random(0,windowHeight)];
     initCurrentTime();
     secondTimestamp = millis();
 }
 
 
 function draw(){
-    background(255);
+    background('#003049');
     redrawOldWords();
     let m = millis();
 
@@ -48,15 +53,35 @@ function draw(){
         secondTimestamp = m;
     }
 
+    if (secondWords.length >= 59){
+        secondWords = moveWordstoNextWord(nextMinuteCoord[0], nextMinuteCoord[1], 0.1, secondWords);
+    }
+
     if (secondWords.length >= 60){
         secondWords.length = 0;
         drawMinute();
+    }
+    
+    if (secondWords.length >= 59 && minuteWords.length >= 59){
+        minuteWords = moveWordstoNextWord(nextHourCoord[0], nextHourCoord[1], 0.1, minuteWords);
     }
 
     if (minuteWords.length >= 60){
         minuteWords.length = 0;
         drawHour();
     }
+}
+
+function moveWordstoNextWord(goalX, goalY, t, toMove){
+    let newWordCoords = [];
+
+    toMove.forEach(oldCoords => {
+        let newX = lerp(oldCoords[0], goalX, t);
+        let newY = lerp(oldCoords[1], goalY, t);
+        newWordCoords.push([newX, newY]);
+    });
+
+    return newWordCoords;
 }
 
 function redrawOldWords(){
@@ -92,15 +117,15 @@ function initCurrentTime(){
 }
 
 function drawMinute(){
-    let coordinates = [random(0, windowWidth), random(0,windowHeight)];
-    drawWord(MINUTE, MINUTE_SIZE, MINUTE_COLOR, coordinates);
-    minuteWords.push(coordinates);
+    drawWord(MINUTE, MINUTE_SIZE, MINUTE_COLOR, nextMinuteCoord);
+    minuteWords.push(nextMinuteCoord);
+    nextMinuteCoord = [random(0, windowWidth), random(0,windowHeight)];
 }
 
 function drawHour(){
-    let coordinates = [random(0, windowWidth), random(0,windowHeight)];
-    drawWord(HOUR, HOUR_SIZE, HOUR_COLOR, coordinates);
-    hourWords.push(coordinates);    
+    drawWord(HOUR, HOUR_SIZE, HOUR_COLOR, nextHourCoord);
+    hourWords.push(nextHourCoord);
+    nextHourCoord = [random(0, windowWidth), random(0,windowHeight)];    
 }
 
 function drawSecond(){
