@@ -72,6 +72,8 @@ function draw(){
     }
 }
 
+// updates coordinates for each word. so they gradually move to the place of the next spawning
+// higher word
 function moveWordstoNextWord(goalX, goalY, t, toMove){
     let newWordCoords = [];
 
