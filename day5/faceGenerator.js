@@ -203,7 +203,9 @@ function mouth(xCenter, bottomThird, width, height, boundaries){
 // the draw loop function for the face painting. does not do anything, since
 // the face doens't need to be redrawn every frame.
 function faceDraw(){
-    
+    background(BACK_COLOR);
+
+    generateFaceGrid();
 }
 
 function findLeft(toCheck){
@@ -246,6 +248,7 @@ function findXPoint(toCheck, idxInElem, closeTo){
 // draws a face when enter is pressed
 function keyPressed(){
     if (keyCode == ENTER){
+        frameRate(2);
         push();        
         drawFunc = faceDraw;
         background(BACK_COLOR);
@@ -255,6 +258,8 @@ function keyPressed(){
         generateFaceGrid();
         pop();
     } else if (keyCode == BACKSPACE){
+        frameRate(10);
+
         points = [];
         drawFunc = quickDraw;
     }

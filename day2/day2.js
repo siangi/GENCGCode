@@ -49,28 +49,6 @@ function rotateHoveredTile(){
     let x = floor(mouseX/tileSize());
     let y = floor(mouseY/tileSize());
     let size = tileSize();
-
-    // let spreadFactor = floor(options.tiling_factor*(0.1)) 
-    // for(let i =  -spreadFactor; i < spreadFactor; i++){
-    //     if (x + i < 0 || x + i > tiles.length){ continue; }
-
-    //     for(let j = -spreadFactor; j < spreadFactor; j++){
-    //         if (y + j < 0 || y + j > tiles[x + i].length){ continue; }
-
-    //         let tile = tiles[x + i][y + j];
-    //         let newTileMode;
-    //         // Edge cases
-    //         if (tile.mode == 4 || tile.mode == 1){
-    //             newTileMode = ceil(random(0,4))
-    //         }
-    //         else{
-    //             newTileMode = floor(tile.mode + random(-1, 1.9))
-    //         }   
-    //         //generate completely new Tile, so the center of the Arcs is calcuated properly
-    //         tiles[x + i][y + j] = generateTileObject(size*(x + i), size*(y + j), size, options.tile_levels, newTileMode);
-        
-    //     }
-    // }
     
     let tile = tiles[x][y];
     let newTileMode;
@@ -83,7 +61,6 @@ function rotateHoveredTile(){
     }   
     //generate completely new Tile, so the center of the Arcs is calcuated properly
     tiles[x][y] = generateTileObject(size*x, size*y, size, options.tile_levels, newTileMode);
-
 }
 
 function tileSize(){

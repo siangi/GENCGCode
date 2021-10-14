@@ -4,7 +4,7 @@ function setup(){
     createCanvas(windowWidth, windowHeight);
     base.resize(0, windowHeight)
     base.loadPixels();
-    result = averageBlocks(base, 500);
+    result = averageBlocks(base, 20);
     image(result, 0, 0);
 }
 
@@ -26,14 +26,15 @@ function averageBlocks(img, noOfBlocks){
             y = Math.floor(random(0, img.height - size));
 
             coordsOK = true;
-            // oldCoords.forEach(coord => {
-            //     if ((x >= coord[0] && x <= coord[0] + size) || (y >= coord[1] && y <= coord[1] + size)){
-            //         coordsOK = false;
-            //         return;
-            //     } else {
-            //         coordsOK = true;
-            //     }
-            // });
+            // trying to stop them from overlapping, doesn't work yet.
+            oldCoords.forEach(coord => {
+                if ((x >= coord[0] && x <= coord[0] + size) || (y >= coord[1] && y <= coord[1] + size)){
+                    coordsOK = false;
+                    return;
+                } else {
+                    coordsOK = true;
+                }
+            });
                 
         } while (!coordsOK);
 
