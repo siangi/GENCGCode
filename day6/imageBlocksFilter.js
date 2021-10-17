@@ -3,6 +3,15 @@ let base;
 const BLOCK_COUNT = 5;
 const SIZE_DIVIDER = 5;
 
+// options and their controls
+let options = {
+    widthDivider: 4,
+    heightDivider: 1
+}
+
+
+// are needed to store some random Values for the randomFilter
+// these can't be parameters because the filter functions are anonymous
 let redRand;
 let greenRand;
 let blueRand;
@@ -10,22 +19,35 @@ let blueRand;
 // array of functions which will filter 
 let filters = [];
 
+// coordinates of the filterBlocksplus their size
+let blocks = [];
+
 function setup(){
     createCanvas(windowWidth, windowHeight);
     base.resize(0, windowHeight)
     base.loadPixels();
+
+    const gui = new dat.GUI();
+    gui.add(options, 'widthDivider', 1, 10, 1);
+    gui.add(options, 'heightDivider', 1, 10, 1);
+
     initFilterArray();
-    result = averageBlocks(base, BLOCK_COUNT);
-    image(result, 0, 0);
+    background(50);
+    
+    // copied = randomFilterBlocks(base, BLOCK_COUNT);
+    background(255);
+    let copied = base;
+    copied = filterGrid(copied);
+    image(copied, 0, 0);
 }
 
-function averageBlocks(img, noOfBlocks){
+// creates blocks randomly across the image
+function randomFilterBlocks(img, noOfBlocks){
     let size = Math.floor(Math.max(img.width, img.height)/SIZE_DIVIDER);
     result = img;
-    let oldCoords = [];
-    
-        let x = 0;
-        let y = 0;
+
+    let x = 0;
+    let y = 0;
 
     for(let i = 0; i < noOfBlocks; i++){
         let coordsOK = true;
@@ -37,14 +59,14 @@ function averageBlocks(img, noOfBlocks){
             y = Math.floor(random(0, img.height - size));
 
             coordsOK = true;
-            // trying to stop them from overlapping, doesn't work yet.
-            for (let i = 0; i < oldCoords.length; i++) {
-                const coord = oldCoords[i];
 
-                if (((x >= coord[0] && x <= coord[0] + size) || (x+size >= coord[0] && x+size <= coord[0] + size)) && 
-                    ((y >= coord[1] && y <= coord[1] + size) || (y+size >= coord[1] && y+size <= coord[1] + size))){
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i]
+
+                if (((x >= block.x && x <= block.x + size) || (x+size >= block.x && x+size <= block.x + size)) && 
+                    ((y >= block.y && y <= block.y + size) || (y+size >= block.y && y+size <= block.y + size))){
                     coordsOK = false;
-                    console.log("bad coords " + x + " " + y);
+                    
                     break;
                 } else {
                     coordsOK = true;
@@ -52,26 +74,48 @@ function averageBlocks(img, noOfBlocks){
             }                
         } while (!coordsOK);
 
-        console.log("paint with coords " + x + " " + y);
-        result = averageBlock(x, y, size, size, result);
+        result = filterBlock(x, y, size, size, result);
         result.updatePixels();
-        oldCoords.push([x, y]);
+        block = {
+            x: x,
+            y: y,
+            width: size,
+            height: size
+        }
+        blocks.push(block);
     }
 
     return result;
 }
 
-function averageBlock(x, y, width, height, img){
+// creates a grid of blocks with random filters
+function filterGrid(img){
+    let result = img;
+
+    blockHeight = floor(img.height/options.heightDivider);
+    blockWidth = floor(img.width/options.widthDivider);
+    
+    for(let col = 0; col < options.heightDivider; col++){
+        for(let row = 0; row < options.widthDivider; row++){
+            result = filterBlock(blockWidth*row, blockHeight*col, blockWidth, blockHeight, result);
+            result.updatePixels();
+        }
+    }
+    return result;
+}
+
+
+function filterBlock(x, y, width, height, img){
     let avgRed  = 0;
     let avgGreen = 0;
     let avgBlue = 0;
-    let filterFunc = filters[floor(random(0, filters.length - 1))];
-    redRand = random(0.2, 2);
-    greenRand = random(0.2, 2);
-    blueRand = random(0.2, 2);
+    let filterFunc = filters[floor(random(0, filters.length))];
+    redRand = random(0.9, 2);
+    greenRand = random(0.9, 2);
+    blueRand = random(0.9, 2);
     // one loop for getting the average Color and one Loop for setting it
-    for(let col = x; col <= x+width; col++){
-        for(let row = y; row <= y + height; row++){
+    for(let col = x; col < x+width; col++){
+        for(let row = y; row < y + height; row++){
             // Calculate the pixel index * 4 because 4 color Channels
             const index = (row * img.width + col) * 4;
 
@@ -85,9 +129,19 @@ function averageBlock(x, y, width, height, img){
     return img;
 }
 
-function draw(){
 
+function draw(){
+    if (oldHeightDivider != options.heightDivider || oldWidthDivider != options.widthDivider){
+        oldHeightDivider = options.heightDivider;
+        oldWidthDivider = options.widthDivider;
+        background(255);
+        let result = base;
+        result = filterGrid(base);
+        result.updatePixels();
+        image(result, 0, 0);
+    }    
 }
+
 
 function initFilterArray(){
     filters.push(glitchFilter);
@@ -96,6 +150,17 @@ function initFilterArray(){
     filters.push(violetFilterTwo);
     filters.push(randomFilter);
     filters.push(grayscaleFilter);
+    filters.push(negativeFilter);
+}
+
+function negativeFilter(red, green, blue){
+    result = [];
+
+    result[0] = 255 - red;
+    result[1] = 255 - green;
+    result[2] = 255 - blue;
+
+    return result;
 }
 
 
@@ -144,7 +209,6 @@ function grayscaleFilter(red, green, blue){
     return result;
 }
 
-
 function violetFilterTwo(red, green, blue){
     result = [];
     
@@ -168,6 +232,12 @@ function randomFilter(red, green, blue){
     return result;
 }
 
+function showImage(img){
+    let result = img;
+    result = filterGrid(result);
+    image(result, 0, 0)
+}
+
 function preload(){
-    base = loadImage('images/berg.jpg');
+    base = loadImage('images/berg.JPG');    
 }

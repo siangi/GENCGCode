@@ -13,7 +13,7 @@ let drawFunc;
 let clickFunc;
 
 function setup(){
-    frameRate(10);
+    frameRate(50);
     drawFunc = quickDraw;
     clickFunc = setPolyPoint;
     // BACK_COLOR = color('#DEC891');
